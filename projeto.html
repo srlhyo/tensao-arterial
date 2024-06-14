@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registros Tensão Arterial</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="imagens/coracao.png" alt="Logo" class="logo-img">
+            <h1>Registros de Hipertensão</h1>
+        </div>
+        <form id="registroForm">
+            <label for="dataInput">Data:</label>
+            <input type="date" id="dataInput" required>
+            <label for="pressaoInput">Pressão Arterial:</label>
+            <input type="text" id="pressaoInput" required>
+            <label for="exercicioInput">Exercício:</label>
+            <input type="text" id="exercicioInput" required>
+            <label for="medicamentosInput">Medicamentos:</label>
+            <input type="text" id="medicamentosInput" required>
+            <button type="button" onclick="adicionarRegistro()">Adicionar Registro</button>
+        </form>
+        <table id="registrosTable">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Pressão Arterial</th>
+                    <th>Exercício</th>
+                    <th>Medicamentos</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="button-container">
+            <button onclick="limparRegistros()">Limpar Registros</button>
+        </div>
+        <nav>
+            <a href="hh2.html">Calendário</a>
+        </nav>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarRegistros();
+        });
+
+        function carregarRegistros() {
+            const registros = JSON.parse(localStorage.getItem('registros')) || [];
+            const tabela = document.getElementById('registrosTable').getElementsByTagName('tbody')[0];
+            tabela.innerHTML = '';
+
+            registros.forEach(registro => {
+                const novaLinha = tabela.insertRow();
+
+                const dataCelula = novaLinha.insertCell();
+                const pressaoCelula = novaLinha.insertCell();
+                const exercicioCelula = novaLinha.insertCell();
+                const medicamentosCelula = novaLinha.insertCell();
+
+                dataCelula.textContent = registro.data;
+                pressaoCelula.textContent = registro.pressao;
+                exercicioCelula.textContent = registro.exercicio;
+                medicamentosCelula.textContent = registro.medicamentos;
+            });
+        }
+
+        function adicionarRegistro() {
+            const data = document.getElementById('dataInput').value;
+            const pressao = document.getElementById('pressaoInput').value;
+            const exercicio = document.getElementById('exercicioInput').value;
+            const medicamentos = document.getElementById('medicamentosInput').value;
+
+            const novoRegistro = { data, pressao, exercicio, medicamentos };
+
+            const registros = JSON.parse(localStorage.getItem('registros')) || [];
+            registros.push(novoRegistro);
+
+            localStorage.setItem('registros', JSON.stringify(registros));
+
+            carregarRegistros();
+            document.getElementById('registroForm').reset();
+        }
+
+        function limparRegistros() {
+            localStorage.removeItem('registros');
+            carregarRegistros();
+        }
+    </script>
+</body>
+</html>
+

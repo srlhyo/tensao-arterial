@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Tensão Arterial</title>
+    <!-- <link rel="stylesheet" href=c:\Users\Ariana\OneDrive - Agrupamento de Escolas de Rio de Mouro\Ambiente de Trabalho\Site Nadia\body.css> -->
+    <link rel="stylesheet" href="css/hh2_style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Agenda Tensão Arterial</h1>
+        <button onclick="voltarParaRegistros()">Voltar para Registros de Hipertensão</button>
+        <div class="calendar-header">
+            <button onclick="mudarMes(-1)">Anterior</button>
+            <h2 id="mesAno"></h2>
+            <button onclick="mudarMes(1)">Próximo</button>
+        </div>
+        <div class="calendar" id="calendar">
+            
+        </div>
+        <div class="registro-info" id="registroInfo" style="display: none;">
+            <h2>Registo Tensão Arterial Dia Selecionado:</h2>
+            <div id="registrosDia"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        let dataAtual = new Date();
+        const calendar = document.getElementById('calendar');
+        const registroInfo = document.getElementById('registroInfo');
+        const registrosDia = document.getElementById('registrosDia');
+        const mesAno = document.getElementById('mesAno');
+
+        function atualizarCalendario() {
+            const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
+            const ultimoDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
+            mesAno.textContent = `${primeiroDia.toLocaleString('default', { month: 'long' })} de ${primeiroDia.getFullYear()}`;
+
+            const diasSemana = Array.from(calendar.children).slice(0, 7);
+            const diasMes = Array.from(calendar.children).slice(7);
+            diasMes.forEach(cell => cell.remove());
+
+            for (let i = 0; i < primeiroDia.getDay(); i++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                calendar.appendChild(cell);
+            }
+
+            for (let i = 1; i <= ultimoDia.getDate(); i++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                cell.textContent = i;
+                cell.dataset.day = i;
+                cell.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-cell').forEach(c => c.classList.remove('active'));
+                    cell.classList.add('active');
+                    const dataSelecionada = `${dataAtual.getFullYear()}-${(dataAtual.getMonth() + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                    mostrarRegistrosDia(dataSelecionada);
+                });
+                calendar.appendChild(cell);
+            }
+        }
+
+        function mudarMes(direcao) {
+            dataAtual.setMonth(dataAtual.getMonth() + direcao);
+            atualizarCalendario();
+        }
+
+        function mostrarRegistrosDia(data) {
+            registroInfo.style.display = 'block';
+            registrosDia.innerHTML = ''; // Limpa o conteúdo anterior
+
+            const registros = JSON.parse(localStorage.getItem('registros')) || [];
+            const registrosDoDia = registros.filter(registro => registro.data === data);
+
+            if (registrosDoDia.length === 0) {
+                registrosDia.innerHTML = '<p>Nenhum registro encontrado para esta data.</p>';
+            } else {
+                registrosDoDia.forEach(registro => {
+                    const registroHtml = `
+                        <div>
+                            <p><strong>Data:</strong> ${registro.data}</p>
+                            <p><strong>Pressão Arterial:</strong> ${registro.pressao}</p>
+                            <p><strong>Exercício:</strong> ${registro.exercicio}</p>
+                            <p><strong>Medicamentos:</strong> ${registro.medicamentos}</p>
+                        </div>
+                    `;
+                    registrosDia.innerHTML += registroHtml;
+                });
+            }
+        }
+
+        function voltarParaRegistros() {
+            window.location.href ="projeto.html";
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarCalendario();
+        });
+    </script>
+</body>
+</html>
